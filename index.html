@@ -223,14 +223,13 @@
             background-color: #111;
         }
         
-        /* CORREÇÃO R1: Botão Subir ao Topo */
         #scroll-to-top {
             position: fixed;
             bottom: 80px;
             right: 20px;
             z-index: 50;
-            background-color: #fff; /* Fundo Branco */
-            color: #000; /* Ícone Preto */
+            background-color: #fff;
+            color: #000;
             border-radius: 50%;
             padding: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -422,7 +421,6 @@
         </div>
     </main>
     
-    <!-- Botão Scroll to Top (Condicionalmente visível apenas na homePage e ao rolar) -->
     <button id="scroll-to-top" class="hidden" onclick="contentWrapper.scrollTop = 0">
         <i class="fas fa-arrow-up text-xl"></i>
     </button>
@@ -457,7 +455,7 @@
                 <div class="flex flex-col sm:flex-row items-start sm:items-end">
                     <img id="details-poster-img" src="https://placehold.co/150x225/111/FFF?text=POSTER" class="w-28 h-40 object-cover rounded-lg shadow-2xl border-2 border-white/50 z-10 mx-auto sm:mx-0 sm:mt-0" onerror="this.src='https://placehold.co/150x225/111/FFF?text=POSTER'"/>
                     
-                    <!-- CORREÇÃO R2: Título, Gênero e Ano centralizados -->
+                    <!-- CORREÇÃO: Título, Gênero e Ano centralizados -->
                     <div class="ml-0 sm:ml-4 flex-grow z-10 mt-4 sm:mt-0 text-center"> 
                         <h2 id="details-title" class="text-2xl sm:text-3xl font-bold">Título do Conteúdo</h2>
                         <p id="details-meta" class="text-sm text-white/60 mt-1">Filme • 2024 • Gêneros</p>
@@ -910,8 +908,7 @@
             <h3 class="text-xl font-bold mb-4 text-white">ADICIONAR EPISÓDIOS EM MASSA</h3>
             <p id="bulk-modal-target-info" class="text-white/80 mb-4 text-sm"></p>
             
-            <!-- CORREÇÃO R5: Adicionado listener oninput para numeração -->
-            <textarea id="bulk-links-input" rows="8" class="w-full p-3 input-dark rounded-lg mb-4" placeholder="Cole a lista de links dos episódios abaixo (um link por linha):\nhttps://link1.com/ep1\nhttps://link2.com/ep2\n..." oninput="numberBulkLinks(this)" title="Cole os links, a numeração automática aparecerá."></textarea>
+            <textarea id="bulk-links-input" rows="8" class="w-full p-3 input-dark rounded-lg mb-4" placeholder="Cole a lista de links dos episódios abaixo (um link por linha):\nhttps://link1.com/ep1\nhttps://link2.com/ep2\n..."></textarea>
             
             <div class="p-4 bg-white/5 rounded-lg space-y-3">
                  <label class="flex items-center space-x-3 text-sm font-medium">
@@ -1000,8 +997,8 @@
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Versão Atualizada: V1.18 (Fix Scroll, Admin Session, Title Center, Play Count, Bulk Num)
-        const APP_VERSION = "V1.18";
+        // Versão Atualizada: V1.17 (Fix Firebase/Deep Link, Top 10 Badges)
+        const APP_VERSION = "V1.17";
         document.getElementById('app-version').textContent = APP_VERSION;
         
         const TMDB_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkMGY3ZTJjNDE0YjFlZmZmN2IwMDBhZTliNjgxZWQxYiIsIm5iZiI6MTc0OTMzNDk4Mi42MTUsInN1YiI6IjY4NDRiYmM2MWQ2YzRhNDc0ZWJiMmI3ZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.RsV2Jfs-ud1Pw3PLx6DG2EjCmX00lp284qyXPL8_aGg";
@@ -1033,10 +1030,6 @@
         let userGenres = {};
         let contentLoaded = false; // Flag para o Deep Link/Autenticação
         const MIN_RATINGS_FOR_VALIDITY = 5; 
-        
-        // CORREÇÃO R4: Admin Session Management
-        let isAdminAuthenticatedUntil = 0; // Timestamp até quando o acesso admin é liberado
-        const ADMIN_SESSION_DURATION = 60 * 60 * 1000; // 1 hora
         
         let scrollPositions = {
             homePage: 0,
@@ -1179,8 +1172,6 @@
             contentWrapper.scrollTop = scrollPositions[targetPageId] || 0;
             currentPageId = targetPageId;
 
-            // Lógica para mostrar/esconder o botão de scroll (R1)
-            scrollToTopButton.classList.toggle('hidden', targetPageId !== 'homePage' || contentWrapper.scrollTop <= 300);
 
             if (targetPageId === 'homePage' || targetPageId === 'explorePage') {
                 const currentBaseUrl = window.location.href.split('#')[0];
@@ -1225,9 +1216,8 @@
         window.addEventListener('hashchange', handleDeepLink); // Mantém o listener para navegação interna
         
         contentWrapper.addEventListener('scroll', () => {
-             // Lógica de scroll para o botão de topo (Condicionalmente visível)
-             const isHomePage = currentPageId === 'homePage';
-             if (isHomePage && contentWrapper.scrollTop > 300) {
+             // Lógica de scroll para o botão de topo (não afeta o Explore)
+             if (contentWrapper.scrollTop > 300) {
                  scrollToTopButton.classList.remove('hidden');
              } else {
                  scrollToTopButton.classList.add('hidden');
@@ -1417,7 +1407,7 @@
 
             } catch (error) {
                 console.error("Erro ao vincular conta:", error);
-                showCustomModal('Erro na Vinculação', 'Email pode já estar em uso.', true);
+                showCustomModal('Erro na Vinculação', 'Falha ao vincular. Email pode já estar em uso.', true);
             } finally {
                 setLoading('btn-link-submit', false);
             }
@@ -1523,14 +1513,6 @@
 
         window.showAdminPasswordModal = function() {
             closeSidebar();
-
-            // CORREÇÃO R4: Verifica se a sessão admin está ativa
-            if (Date.now() < isAdminAuthenticatedUntil) {
-                showCustomModal("Sucesso", "Acesso de administrador concedido (sessão ativa).", true); 
-                switchTab('adminPage');
-                return;
-            }
-            
             document.getElementById('admin-modal').classList.remove('hidden');
             document.getElementById('admin-modal').classList.add('flex');
             document.getElementById('admin-password-input').value = '';
@@ -1543,8 +1525,6 @@
             document.getElementById('admin-modal').classList.remove('flex');
 
             if (input === ADMIN_PASSWORD) {
-                // CORREÇÃO R4: Define o timestamp de expiração
-                isAdminAuthenticatedUntil = Date.now() + ADMIN_SESSION_DURATION;
                 showCustomModal("Sucesso", "Acesso de administrador concedido.", true); 
                 switchTab('adminPage'); 
             } else {
@@ -1862,73 +1842,6 @@
             });
         }
 
-        // CORREÇÃO R5: Função para numeração visual no bulk add
-        window.numberBulkLinks = function(textarea) {
-            const originalSelectionStart = textarea.selectionStart;
-            const originalSelectionEnd = textarea.selectionEnd;
-            const originalValue = textarea.value;
-
-            // Divide as linhas, ignorando numeração existente
-            let lines = originalValue.split('\n');
-            let newLines = [];
-            let number = 1;
-
-            lines.forEach(line => {
-                const trimmed = line.trim();
-                
-                // Remove numeração antiga (1., 2. etc.)
-                let content = trimmed.replace(/^\d+\.\s*/, '').trim();
-
-                if (content === '') {
-                    newLines.push('');
-                } else {
-                    newLines.push(`${number}. ${content}`);
-                    number++;
-                }
-            });
-
-            const newText = newLines.join('\n');
-
-            // Evita loop de atualização e pulo do cursor
-            if (newText !== originalValue) {
-                textarea.value = newText;
-                
-                // Restaura a posição do cursor (melhor esforço)
-                const lineCountDifference = originalValue.split('\n').length - newText.split('\n').length;
-                let newStart = originalSelectionStart;
-
-                // Tenta ajustar o cursor contando a adição de "N. " ao início das linhas
-                if (lineCountDifference === 0) {
-                    let charsAdded = 0;
-                    for (let i = 0; i < lines.length; i++) {
-                        const oldLine = lines[i];
-                        const newLine = newLines[i] || '';
-                        
-                        if (oldLine.length > 0) {
-                             const numPrefixLength = `${i + 1}. `.length;
-                             const oldPrefixMatch = oldLine.match(/^\d+\.\s*/);
-                             const oldPrefixLength = oldPrefixMatch ? oldPrefixMatch[0].length : 0;
-
-                             if (!oldPrefixMatch) {
-                                 charsAdded += numPrefixLength; // Novo prefixo adicionado
-                             }
-                        }
-                        if (originalSelectionStart <= originalValue.indexOf(oldLine) + oldLine.length + 1) {
-                            newStart += charsAdded;
-                            break;
-                        }
-                    }
-                }
-                
-                textarea.setSelectionRange(newStart, newStart);
-            }
-        };
-
-        // Adiciona o listener de input para a numeração visual (R5)
-        document.getElementById('bulk-links-input').addEventListener('input', function() {
-            numberBulkLinks(this);
-        });
-
         window.showBulkAddModal = function(seasonId) {
             const seasonNumber = seasonId.split('-')[1];
             
@@ -1951,10 +1864,7 @@
             const releaseDate = document.getElementById('bulk-release-date-input').value;
             const releaseTime = document.getElementById('bulk-release-time-input').value;
             
-            // CORREÇÃO R5: Remove numeração visual (N. ) antes de processar os links
-            const linksArray = bulkLinks.split('\n')
-                .map(line => line.trim().replace(/^\d+\.\s*/, ''))
-                .filter(link => link.length > 0);
+            const linksArray = bulkLinks.split('\n').map(link => link.trim()).filter(link => link.length > 0);
             
             if (linksArray.length === 0) {
                 document.getElementById('bulk-add-modal').classList.add('hidden');
@@ -2244,7 +2154,8 @@
                 hidePublishModal();
                 loadContentToFeed(); 
                 loadContentToEdit();
-                // CORREÇÃO R3: Não chama switchTab('homePage') para permanecer no painel admin
+                switchTab('homePage');
+
             } catch (e) {
                 console.error("Erro ao publicar/editar: ", e);
                 showCustomModal('Erro', `Falha na operação: ${e.message}`, false);
@@ -2529,7 +2440,6 @@
             `;
         }
         
-        // CORREÇÃO: Removemos a tag de tipo (movie/tv) para deixar apenas o número do ranking.
         function createNumberedContentCard(data, id, rank) {
             const classes = "w-1/3 sm:w-1/4 md:w-1/5 lg:w-1/6 xl:w-[12.5%] px-1 flex-shrink-0 relative"; 
             
@@ -3707,24 +3617,17 @@
             let html = `<h3 class="text-xl font-bold text-white mb-3 mt-6">${displayTitle}</h3>`; 
             html += `<div class="carousel-container space-x-2">`;
             
-            let itemsRendered = 0;
             dataList.forEach((item, index) => {
-                let cardHtml = '';
                 if (isNumbered) {
-                     cardHtml = createNumberedContentCard(item, item.id, index + 1);
+                     html += createNumberedContentCard(item, item.id, index + 1);
                 } else {
                     // Passa o status de 'isComingSoonList' para o createContentCard para evitar filtragem dupla em carrosséis de agendados
-                    cardHtml = createContentCard(item, item.id, isComingSoonList);
-                }
-
-                if (cardHtml !== '') {
-                    html += cardHtml;
-                    itemsRendered++;
+                    html += createContentCard(item, item.id, isComingSoonList);
                 }
             });
             
-            // Se nenhum item foi renderizado (após a filtragem ou se estiver vazio)
-            if (itemsRendered === 0) {
+            // Se o html final estiver vazio após a filtragem (ex: todos agendados em lista de lançados), não renderiza.
+            if (html.endsWith('space-x-2">') || html.endsWith('</div>')) {
                  container.innerHTML = '';
                  return;
             }
@@ -3781,7 +3684,6 @@
                 });
         }
 
-        // CORREÇÃO: Função de ordenação por play_count (visualizações)
         function sortByPlayCount(contentList) {
             return [...contentList]
                 .sort((a, b) => {
